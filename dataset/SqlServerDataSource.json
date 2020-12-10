@@ -1,0 +1,18 @@
+{
+	"name": "SqlServerDataSource",
+	"properties": {
+		"description": "Connection to your source data store.",
+		"linkedServiceName": {
+			"referenceName": "LS_ONPREM_SQL_INSPIRON",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DataSourceTable"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

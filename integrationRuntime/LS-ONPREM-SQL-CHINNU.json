@@ -1,0 +1,6 @@
+{
+	"name": "LS-ONPREM-SQL-CHINNU",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}

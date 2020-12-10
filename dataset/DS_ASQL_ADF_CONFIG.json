@@ -1,0 +1,49 @@
+{
+	"name": "DS_ASQL_ADF_CONFIG",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AZURE_SQL_DATABASE",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "SourceID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SourceType",
+				"type": "varchar"
+			},
+			{
+				"name": "SchemaName",
+				"type": "varchar"
+			},
+			{
+				"name": "SourceTableName",
+				"type": "varchar"
+			},
+			{
+				"name": "FilterQuery",
+				"type": "varchar"
+			},
+			{
+				"name": "WaterMarkColumn",
+				"type": "varchar"
+			},
+			{
+				"name": "WaterMarkValue",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "ADF_Config"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

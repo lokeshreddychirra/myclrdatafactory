@@ -1,0 +1,13 @@
+{
+	"name": "DS_ASQL_DEST_TABLES",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AZURE_SQL_DATABASE",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
