@@ -1,0 +1,206 @@
+{
+	"name": "PL_INCREMENTALLY_COPY",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get_Config_Table",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT [SourceID]\n      ,[SourceType]\n      ,[SchemaName]\n      ,[SourceTableName]\n      ,[FilterQuery]\n      ,[WaterMarkColumn]\n      ,[WaterMarkValue]\n  FROM [dbo].[ADF_Config]",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_ASQL_ADF_CONFIG",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach Table Copy data",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get_Config_Table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get_Config_Table').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Get_Source_Watermark",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "@CONCAT('SELECT MAX(',item().WaterMarkColumn,') as NewWaterMarkColumnVal FROM ', item().SchemaName,'.',item().SourceTableName)",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "DS_SQL_MAX_SOURCE_TABLE",
+									"type": "DatasetReference"
+								}
+							}
+						},
+						{
+							"name": "Copy From Source to Dest",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "Get_Source_Watermark",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "@CONCAT(item().FilterQuery,' WHERE ',item().WaterMarkColumn,'>','''',item().WaterMarkValue,'''',' AND ',item().WaterMarkColumn,'<=','''',activity('Get_Source_Watermark').output.firstRow.NewWaterMarkColumnVal,'''','')",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobStorageWriteSettings"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings",
+										"filePattern": "setOfObjects"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_SOURCE_TABLE",
+									"type": "DatasetReference",
+									"parameters": {
+										"DS_TABLE_NAME": {
+											"value": "@item().SourceTableName",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_BLOBSTORE",
+									"type": "DatasetReference",
+									"parameters": {
+										"DEST_FOLDERNAME": {
+											"value": "@{item().SourceTableName}",
+											"type": "Expression"
+										},
+										"DEST_FILENAME": {
+											"value": "@{concat(item().SourceTableName,pipeline().TriggerTime)}",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "Update WaterMark in Config",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Copy From Source to Dest",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[sp_update_config_watermark]",
+								"storedProcedureParameters": {
+									"LastModifiedtime": {
+										"value": {
+											"value": "@{activity('Get_Source_Watermark').output.firstRow.NewWaterMarkColumnVal}",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"SourceTableName": {
+										"value": {
+											"value": "@{item().SourceTableName}",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"SourceType": {
+										"value": {
+											"value": "@{item().SourceType}",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_AZURE_SQL_DATABASE",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2020-01-12T05:20:22Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
