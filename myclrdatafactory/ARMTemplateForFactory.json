@@ -34,6 +34,10 @@
 		"clradlsgen2_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://clradlsgen2.dfs.core.windows.net"
+		},
+		"myclrkeyvault_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://myclrkeyvault-dev.vault.azure.net/"
 		}
 	},
 	"variables": {
@@ -342,7 +346,7 @@
 					}
 				},
 				"annotations": [],
-				"lastPublishTime": "2020-01-20T19:01:02Z"
+				"lastPublishTime": "2020-12-18T02:22:46Z"
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/AzureSqlDatabaseExternal_ControlTable2')]",
@@ -1239,6 +1243,19 @@
 			"properties": {
 				"type": "SelfHosted",
 				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/myclrkeyvault')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('myclrkeyvault_properties_typeProperties_baseUrl')]"
+				}
 			},
 			"dependsOn": []
 		}

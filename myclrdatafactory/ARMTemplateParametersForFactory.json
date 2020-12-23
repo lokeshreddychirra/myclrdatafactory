@@ -25,6 +25,9 @@
 		},
 		"clradlsgen2_properties_typeProperties_url": {
 			"value": "https://clradlsgen2.dfs.core.windows.net"
+		},
+		"myclrkeyvault_properties_typeProperties_baseUrl": {
+			"value": "https://myclrkeyvault-dev.vault.azure.net/"
 		}
 	}
 }

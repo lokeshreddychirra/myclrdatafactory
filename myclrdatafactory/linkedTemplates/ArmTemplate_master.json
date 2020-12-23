@@ -35,6 +35,10 @@
 			"type": "string",
 			"defaultValue": "https://clradlsgen2.dfs.core.windows.net"
 		},
+		"myclrkeyvault_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://myclrkeyvault-dev.vault.azure.net/"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -82,6 +86,9 @@
 					},
 					"clradlsgen2_properties_typeProperties_url": {
 						"value": "[parameters('clradlsgen2_properties_typeProperties_url')]"
+					},
+					"myclrkeyvault_properties_typeProperties_baseUrl": {
+						"value": "[parameters('myclrkeyvault_properties_typeProperties_baseUrl')]"
 					}
 				}
 			},
