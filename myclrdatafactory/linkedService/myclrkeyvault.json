@@ -1,0 +1,10 @@
+{
+	"name": "myclrkeyvault",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://myclrkeyvault-dev.vault.azure.net/"
+		}
+	}
+}
